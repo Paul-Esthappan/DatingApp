@@ -76,8 +76,7 @@ coverage/
 .AppleDouble
 .LSOverride
 
-# Thumbnails
-._*
+
 
 # Windows image file caches
 Thumbs.db
@@ -110,8 +109,7 @@ Desktop.ini
 # SvelteKit
 .svelte-kit/
 
-# Exclude all directories
-**/*/
+
 
 # Include files that should be tracked in these directories
 !src/**

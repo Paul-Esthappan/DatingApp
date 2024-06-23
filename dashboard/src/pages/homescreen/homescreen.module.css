@@ -1,0 +1,54 @@
+.mainContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    height: 100vh; /* Use height to make it full screen */
+    position: absolute;
+top: 20px;
+left: 80px;
+ 
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    background-color: #1d2634; 
+}
+
+.mainTitle {
+    grid-column: span 2;
+    text-align: center;
+}
+
+.card, .chart {
+    background: #f8e5e5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardInner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.cardIcon {
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.chart {
+    height: 300px;
+}
