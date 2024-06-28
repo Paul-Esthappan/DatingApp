@@ -1,12 +1,17 @@
 const express = require('express');
-const {postCreateDetails, loginuser}  = require('../controllers/auth-controller');
 const router = express.Router();
+const { postCreateDetails, loginUser } = require('../controllers/authController');
+var passport = require('passport');
+var GoogleStrategy = require('passport-google-oidc');
 
-// router.post('/login',authController.login);
 
-//CREATE USER
-router.post('/signup',postCreateDetails)
-//SIGN IN
-router.post('/login', loginuser)
+// Signup route
+router.post('/signup', postCreateDetails);
+
+// Login route
+router.post('/signin', loginUser);
+
+// Login with google
+router.get('/login/federated/google', passport.authenticate('google'));
 
 module.exports = router;

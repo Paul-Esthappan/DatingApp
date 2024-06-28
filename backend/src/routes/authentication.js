@@ -25,13 +25,4 @@ router.get('/logout', (req, res, next) => {
   });
 });
 
-// Profile route
-// router.get('/profile', (req, res) => {
-//   if (req.isAuthenticated()) {
-//     res.send(`Hello, ${req.user.displayName}`);
-//   } else {
-//     res.redirect('/');
-//   }
-// });
-
 module.exports = router;

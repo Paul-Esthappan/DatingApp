@@ -19,7 +19,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/', authRoutes);
+app.use('/api', authRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}! 😍`);

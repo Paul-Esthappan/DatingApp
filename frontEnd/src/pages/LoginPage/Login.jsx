@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCountries } from "use-react-countries";
 import { Button } from "@material-tailwind/react";
 import InputField from "../../components/input/InputField";
 import InputSelectBox from "../../components/input/InputSelectBox";
-import InputRadioButton from "../../components/input/InputRadioButton";
-import InputCheckBox from "../../components/input/InputCheckBox";
 import InputMobileNumber from "../../components/input/InputMobileNumber";
 import FileUpload from "../../components/input/FileUpload";
+import SplashScreen from "../SplashScreen.jsx/SplashScreen";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Import axios for API requests
+import { publicRequest } from "../../utils/axios/axios";
 
 const Login = ({ isSignInPage }) => {
+  const navigate = useNavigate();
   const { countries } = useCountries();
   const [country, setCountry] = useState(0);
   const { name, flags, countryCallingCode } = countries[country];
@@ -28,6 +31,13 @@ const Login = ({ isSignInPage }) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [showSplash, setShowSplash] = useState(true); // Initial state for splash screen
+
+  useEffect(() => {
+    // Hide splash screen after 2 seconds
+    const timer = setTimeout(() => setShowSplash(false), 2000);
+    return () => clearTimeout(timer); // Cleanup timer
+  }, []);
 
   const countryOptions = [
     { value: "", label: "Select Country" },
@@ -67,7 +77,6 @@ const Login = ({ isSignInPage }) => {
 
   const handleFileChange = (files) => {
     setSelectedFiles(files);
-    // Handle file processing or storage here
   };
 
   const handleSubmit = async (e) => {
@@ -76,17 +85,54 @@ const Login = ({ isSignInPage }) => {
     setErrorMessage("");
 
     try {
-      // Assuming a function `publicRequest` for making API requests
-      const response = await publicRequest.post(
-        `${!isSignInPage ? "/auth/signup" : "/auth/signin"}`,
-        formData
-      );
+      // Prepare form data for signup or login
+      let url;
+      let data;
 
-      // Assuming a function `dispatch` and a `navigate` function for routing
+      if (isSignInPage) {
+        // Login case
+        url = "/auth/login";
+        data = {
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          password: formData.password,
+        };
+      } else {
+        // Signup case
+        url = "/auth/signup";
+        data = new FormData();
+
+        for (const key in formData) {
+          if (Array.isArray(formData[key])) {
+            formData[key].forEach((item) => data.append(key, item));
+          } else {
+            data.append(key, formData[key]);
+          }
+        }
+
+        selectedFiles.forEach((file) => {
+          data.append("files", file);
+        });
+      }
+
+      // Send data to the backend
+      const response = await axios.post(url, data, {
+        headers: {
+          "Content-Type": isSignInPage
+            ? "application/json"
+            : "multipart/form-data",
+        },
+      });
+
       const { user, token } = response.data;
-      dispatch(setUserAndToken({ user, token }));
+
+      // Assuming you have a function to set user and token in your Redux store
+      // dispatch(setUserAndToken({ user, token }));
+
+      // Redirect to home page
       navigate("/home");
 
+      // Clear form
       setFormData({
         email: "",
         password: "",
@@ -101,16 +147,35 @@ const Login = ({ isSignInPage }) => {
       });
       setSelectedFiles([]);
     } catch (error) {
-      console.error(`${!isSignInPage ? "signup" : "login"} failed:`, error);
-      setErrorMessage("Registration failed. Please try again.");
+      console.error(`${isSignInPage ? "login" : "signup"} failed:`, error);
+      setErrorMessage(
+        `${isSignInPage ? "Login" : "Registration"} failed. Please try again.`
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleGoogleSignin = async () => {
+     try {
+       const response = await axios.post(publicRequest, "/auth/google");
+       if (response.data.success) {
+         navigate("/");
+       } else {
+         console.log("Invalid username or password");
+       }
+     } catch (error) {
+       console.log(error);
+     }
+  };
+  
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
   return (
     <div className="flex justify-center items-center h-screen bg-[#d2cfdf]">
-      <div className="max-w-7xl bg-white px-6 py-2 rounded-lg shadow-lg">
+      <div className="max-w-7xl bg-white px-6 py-2 rounded-lg shadow-lg hover:cursor-pointer">
         <button
           className="flex w-full justify-end"
           onClick={() => navigate("/")}
@@ -121,9 +186,9 @@ const Login = ({ isSignInPage }) => {
           {isSignInPage ? "Login" : "User Registration Form"}
         </h1>
         <h3 className="text-gray-600 text-sm text-center mb-4">
-          {!isSignInPage
-            ? "Please register to continue"
-            : "Please login to continue."}
+          {isSignInPage
+            ? "Please login to continue."
+            : "Please register to continue"}
         </h3>
         <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
           <div className="grid md:grid-cols-2 gap-4">
@@ -172,43 +237,6 @@ const Login = ({ isSignInPage }) => {
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                 />
-                {/* <div>
-                  <label
-                    htmlFor="male"
-                    className="block text-xs font-medium text-gray-700"
-                  >
-                    Gender
-                  </label>
-                  <div className="flex items-center px-4 space-x-4">
-                    <InputRadioButton
-                      label="Male"
-                      type="radio"
-                      id="male"
-                      name="gender"
-                      value="male"
-                      checked={formData.gender === "male"}
-                      onChange={handleInputChange}
-                    />
-                    <InputRadioButton
-                      type="radio"
-                      label="Female"
-                      id="female"
-                      name="gender"
-                      value="female"
-                      checked={formData.gender === "female"}
-                      onChange={handleInputChange}
-                    />
-                    <InputRadioButton
-                      type="radio"
-                      label="Other"
-                      id="other"
-                      name="gender"
-                      value="other"
-                      checked={formData.gender === "other"}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div> */}
                 <FileUpload
                   label="Upload Dp"
                   onChange={handleFileChange}
@@ -236,15 +264,20 @@ const Login = ({ isSignInPage }) => {
             <p className="text-red-500 text-sm">{errorMessage}</p>
           )}
         </form>
-        <p
-          className="text-center mt-4 text-sm text-gray-700"
-          onClick={() =>
-            navigate(isSignInPage ? "/account/signup" : "/account/signin")
-          }
-        >
-          {isSignInPage
-            ? "New user? Sign up"
-            : "Already have an account? Log in"}
+        <Button className="w-full my-2" onClick={handleGoogleSignin}>
+          Login with Google
+        </Button>
+        <p className="text-center mt-4 text-sm text-gray-700">
+          {isSignInPage ? "New user?" : "Already have an account?"}
+          <a
+            className="px-2 hover:text-blue-800 hover:text-lg"
+            variant="text"
+            onClick={() =>
+              navigate(isSignInPage ? "/account/signup" : "/account/login")
+            }
+          >
+            {isSignInPage ? "Sign up" : "Log in"}
+          </a>
         </p>
       </div>
     </div>
