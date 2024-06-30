@@ -99,9 +99,9 @@ const NavBar = () => {
 
   
   return (
-    <header className="bg-white w-screen">
+    <header className="bg-white fixed top-0 left-0 w-full shadow-lg z-50">
       <nav
-        className="mx-auto flex items-center justify-between p-6 lg:px-8 shadow-sm"
+        className="mx-auto flex items-center justify-between px-6 lg:px-8 shadow-sm"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
@@ -266,7 +266,7 @@ const NavBar = () => {
                     </>
                   )}
                 </Disclosure>
-                {aLink.map((list,index) => (
+                {aLink.map((list, index) => (
                   <a
                     key={index}
                     href={list.href}

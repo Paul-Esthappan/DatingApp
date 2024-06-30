@@ -7,7 +7,7 @@ import InputMobileNumber from "../../components/input/InputMobileNumber";
 import FileUpload from "../../components/input/FileUpload";
 import SplashScreen from "../SplashScreen.jsx/SplashScreen";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios for API requests
+import axios from "axios";
 import { publicRequest } from "../../utils/axios/axios";
 
 const Login = ({ isSignInPage }) => {
@@ -19,6 +19,7 @@ const Login = ({ isSignInPage }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     userName: "",
     country: "",
     phoneNumber: "",
@@ -27,10 +28,14 @@ const Login = ({ isSignInPage }) => {
     designation: "",
     createdDate: "",
     qualification: [],
+    interests: "",
+    drinkingHabits: "",
+    smokingHabits: "",
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedReels, setSelectedReels] = useState([]);
   const [showSplash, setShowSplash] = useState(true); // Initial state for splash screen
 
   useEffect(() => {
@@ -57,6 +62,11 @@ const Login = ({ isSignInPage }) => {
     { value: "MBA", label: "MBA" },
   ];
 
+  const habitsOptions = [
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+  ];
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -79,10 +89,20 @@ const Login = ({ isSignInPage }) => {
     setSelectedFiles(files);
   };
 
+  const handleReelChange = (files) => {
+    setSelectedReels(files);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
+
+    // Validate password and confirm password
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Prepare form data for signup or login
@@ -97,6 +117,7 @@ const Login = ({ isSignInPage }) => {
           phoneNumber: formData.phoneNumber,
           password: formData.password,
         };
+        navigate('/home')
       } else {
         // Signup case
         url = "/auth/signup";
@@ -113,29 +134,34 @@ const Login = ({ isSignInPage }) => {
         selectedFiles.forEach((file) => {
           data.append("files", file);
         });
+
+        selectedReels.forEach((file) => {
+          data.append("reels", file);
+        });
+        navigate("/account/service");
       }
 
       // Send data to the backend
-      const response = await axios.post(url, data, {
+      const response = await axios.post(`${publicRequest}${url}`, data, {
         headers: {
           "Content-Type": isSignInPage
             ? "application/json"
             : "multipart/form-data",
         },
       });
-
       const { user, token } = response.data;
 
       // Assuming you have a function to set user and token in your Redux store
       // dispatch(setUserAndToken({ user, token }));
 
       // Redirect to home page
-      navigate("/home");
+      navigate("/service");
 
       // Clear form
       setFormData({
         email: "",
         password: "",
+        confirmPassword: "",
         userName: "",
         country: "",
         phoneNumber: "",
@@ -144,10 +170,14 @@ const Login = ({ isSignInPage }) => {
         designation: "",
         createdDate: "",
         qualification: [],
+        interests: "",
+        drinkingHabits: "",
+        smokingHabits: "",
       });
       setSelectedFiles([]);
+      setSelectedReels([]);
     } catch (error) {
-      console.error(`${isSignInPage ? "login" : "signup"} failed:`, error);
+      console.error(`${isSignInPage ? "Login" : "Signup"} failed:`, error);
       setErrorMessage(
         `${isSignInPage ? "Login" : "Registration"} failed. Please try again.`
       );
@@ -156,25 +186,28 @@ const Login = ({ isSignInPage }) => {
     }
   };
 
-  const handleGoogleSignin = async () => {
-     try {
-       const response = await axios.post(publicRequest, "/auth/google");
-       if (response.data.success) {
-         navigate("/");
-       } else {
-         console.log("Invalid username or password");
-       }
-     } catch (error) {
-       console.log(error);
-     }
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const ageDifMs = Date.now() - birthDate.getTime();
+    const ageDate = new Date(ageDifMs); // milliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
-  
+
   if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
+  const handleGoogleSignin = async () => {
+    try {
+      const responce = await axios.get(
+        "http://localhost:3000/login/federated/google"
+      );
+      console.log("g responce", responce);
+    } catch (error) {}
+  };
+
   return (
-    <div className="flex justify-center items-center h-screen bg-[#d2cfdf]">
+    <div className="flex justify-center items-center bg-[#d2cfdf] h-full overflow-scroll">
       <div className="max-w-7xl bg-white px-6 py-2 rounded-lg shadow-lg hover:cursor-pointer">
         <button
           className="flex w-full justify-end"
@@ -213,6 +246,15 @@ const Login = ({ isSignInPage }) => {
             {!isSignInPage && (
               <>
                 <InputField
+                  type="password"
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  id="confirmPassword"
+                  placeholder="********"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                />
+                <InputField
                   type="text"
                   name="userName"
                   id="userName"
@@ -220,6 +262,38 @@ const Login = ({ isSignInPage }) => {
                   placeholder="ex: John Koya"
                   value={formData.userName}
                   onChange={handleInputChange}
+                />
+                <InputField
+                  type="date"
+                  name="dob"
+                  id="dob"
+                  label="Date of Birth"
+                  value={formData.dob}
+                  onChange={handleInputChange}
+                />
+                {formData.dob && <p>Age: {calculateAge(formData.dob)} years</p>}
+                <InputField
+                  type="text"
+                  name="interests"
+                  id="interests"
+                  label="Interests"
+                  placeholder="Enter your interests"
+                  value={formData.interests}
+                  onChange={handleInputChange}
+                />
+                <InputSelectBox
+                  label="Drinking Habits"
+                  name="drinkingHabits"
+                  value={formData.drinkingHabits}
+                  onChange={handleInputChange}
+                  options={habitsOptions}
+                />
+                <InputSelectBox
+                  label="Smoking Habits"
+                  name="smokingHabits"
+                  value={formData.smokingHabits}
+                  onChange={handleInputChange}
+                  options={habitsOptions}
                 />
                 <InputSelectBox
                   label="Country"
@@ -238,16 +312,38 @@ const Login = ({ isSignInPage }) => {
                   onChange={handleInputChange}
                 />
                 <FileUpload
-                  label="Upload Dp"
+                  label="Upload Profile Picture"
+                  onChange={handleFileChange}
+                  multiple={false}
+                  accept=".jpg,.png"
+                />
+                <FileUpload
+                  label="Upload Images"
                   onChange={handleFileChange}
                   multiple={true}
-                  accept=".jpg,.png,.pdf"
+                  accept=".jpg,.png"
+                />
+                <FileUpload
+                  label="Upload Short Reels"
+                  onChange={handleReelChange}
+                  multiple={true}
+                  accept=".mp4,.mov"
                 />
                 {selectedFiles.length > 0 && (
                   <div className="mt-4">
                     <h2 className="text-xl">Selected Files:</h2>
                     <ul>
                       {selectedFiles.map((file, index) => (
+                        <li key={index}>{file.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {selectedReels.length > 0 && (
+                  <div className="mt-4">
+                    <h2 className="text-xl">Selected Reels:</h2>
+                    <ul>
+                      {selectedReels.map((file, index) => (
                         <li key={index}>{file.name}</li>
                       ))}
                     </ul>
@@ -264,9 +360,10 @@ const Login = ({ isSignInPage }) => {
             <p className="text-red-500 text-sm">{errorMessage}</p>
           )}
         </form>
-        <Button className="w-full my-2" onClick={handleGoogleSignin}>
-          Login with Google
-        </Button>
+        {isSignInPage ?
+          <Button className="w-full my-2" onClick={handleGoogleSignin}>
+            Login with Google
+          </Button> : ''}
         <p className="text-center mt-4 text-sm text-gray-700">
           {isSignInPage ? "New user?" : "Already have an account?"}
           <a

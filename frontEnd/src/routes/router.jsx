@@ -1,13 +1,16 @@
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
-import PrivateRoute from "../pages/AuthPage/PrivateRoute ";
-import ErrorPage from "./ErrorPage";
-import Home from "./pages/Home/Home";
-import Login from "./pages/LoginPage/Login";
-import DatingRegisterPage from "./pages/LoginPage/DatingRegisterPage";
-import Relationship from "./pages/LoginPage/Relationship";
-import Layout from "./styles/Layout/Layout";
-import Auth from "./pages/AuthPage/Auth";
+import PrivateRoute from "../routes/PrivateRoute ";
+import ErrorPage from "../Errorpage";
+import Home from "../pages/Home/Home";
+import Login from "../pages/LoginPage/Login";
+import DatingRegisterPage from "../pages/LoginPage/DatingRegisterPage";
+import Relationship from "../pages/LoginPage/Relationship";
+import Layout from "../styles/Layout/Layout";
+import Auth from "../pages/AuthPage/Auth";
+import Services from "../pages/LoginPage/Services";
+import Profile from "../pages/Profiles/Profile";
+import SexualOrientation from "../pages/LoginPage/SexualOrientation";
 
 const mainRoutes = [
   {
@@ -18,15 +21,23 @@ const mainRoutes = [
         path: "/",
         element: (
           <PrivateRoute>
+            <Services />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dating/home",
+        element: (
+          <PrivateRoute>
             <Home />
           </PrivateRoute>
         ),
       },
       {
-        path: "/home",
+        path: "/dating/profile",
         element: (
           <PrivateRoute>
-            <Home />
+            <Profile />
           </PrivateRoute>
         ),
       },
@@ -52,8 +63,18 @@ const authRoutes = [
     errorElement: <ErrorPage />,
   },
   {
-    path: "/account/relationship",
+    path: "/account/service",
+    element: <Services />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/dating/relationship",
     element: <Relationship />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/dating/sexualOrientation",
+    element: <SexualOrientation />,
     errorElement: <ErrorPage />,
   },
 ];

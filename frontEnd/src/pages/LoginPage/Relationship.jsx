@@ -1,60 +1,46 @@
 import { Button } from '@material-tailwind/react'
 import React from 'react'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 const Relationship = () => {
-     const handleSubmit = async (e) => {
-       e.preventDefault();
-       setLoading(true);
-       setErrorMessage("");
+  const navigate = useNavigate();
 
-       try {
-         // Assuming a function `publicRequest` for making API requests
-         const response = await publicRequest.post(formData);
-
-         // Assuming a function `dispatch` and a `navigate` function for routing
-         const { user, token } = response.data;
-         dispatch(setUserAndToken({ user, token }));
-         navigate("/home");
-
-         setFormData({
-           email: "",
-           password: "",
-           userName: "",
-           country: "",
-           phoneNumber: "",
-           dob: "",
-           gender: "",
-           designation: "",
-           createdDate: "",
-           qualification: [],
-         });
-         setSelectedFiles([]);
-       } catch (error) {
-         console.error(error);
-         setErrorMessage("Registration failed. Please try again.");
-       } finally {
-         setLoading(false);
-       }
-     };
+  const handleclick = (value) => {
+    switch (value) {
+      case "dating":
+        navigate("/dating/sexualOrientation");
+        break;
+      case "matrimony":
+        navigate("/matrimony/home");
+        break;
+      default:
+        break;
+    }
+  };
   return (
-    <div className="flex justify-center items-center h-screen bg-[#d2cfdf]">
-      <div className="max-w-7xl bg-white px-6 py-2 rounded-lg shadow-lg">
-        <button
-          className="flex w-full justify-end"
-          onClick={() => Navigate("/")}
-        >
-          X
-        </button>
-        <h1 className="text-xl font-bold text-center text-slate-600">
-          Are you looking for a Life Partner or Boyfriend
+    <div className="flex flex-col justify-center items-center h-screen">
+      <div>
+        <h1 className="font-bold text-6xl text-red-400 my-6">
+          What would you like to do?
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
-          <div className="grid md:grid-cols-2 gap-4">
-            <Button>Boy Friend</Button>
-            <Button>Life Partner</Button>
-          </div>
-        </form>
+      </div>
+      <div className="flex justify-center items-center">
+        <Button
+          onClick={() => handleclick("dating")}
+          variant="gradient"
+          color="deep-orange"
+          className="mx-5"
+        >
+          Short Term Fun
+        </Button>
+        <Button
+          onClick={() => handleclick("matrimony")}
+          variant="gradient"
+          color="deep-orange"
+          className="mx-5"
+        >
+          Life Partner
+        </Button>
       </div>
     </div>
   );

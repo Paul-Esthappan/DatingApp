@@ -1,39 +1,15 @@
 import React from "react";
-import SampleDp from "../../assets/SampleDp.jpeg";
-import { FaHeart, FaHeartBroken } from "react-icons/fa";
+import ProfileCard from "../../components/cards/ProfileCard";
 
 const Home = () => {
+  const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  const array2 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const array3 = [1, 2, 3, 4, 5, 6];
   return (
-    <div className="relative w-screen h-full flex flex-col items-center overflow-auto">
-      <div className="relative h-screen flex flex-col">
-        <img
-          className="w-full h-full object-contain"
-          src={SampleDp}
-          alt="Profile"
-        />
-        <div className="absolute bottom-0 w-full p-4 bg-gradient-to-t from-black via-transparent to-transparent text-white flex flex-row justify-between items-center items-center">
-          <div className="flex flex-col items-center mb-4">
-            <h1 className="text-2xl font-bold">Name</h1>
-            <h5 className="text-lg">00</h5>
-          </div>
-          <div className="flex space-x-6">
-            <div className="flex flex-col items-center">
-              <FaHeartBroken className="text-red-900 text-4xl bg-white rounded-full p-2" />
-              <p>Dislike</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <FaHeart className="text-red-900 text-4xl bg-white rounded-full p-2" />
-              <p>Like</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Bio Section */}
-      <div className="w-full lg:w-[48%] p-4 bg-white text-black shadow-lg flex flex-col">
-        <h1 className="mb-4">Bio</h1>
-        <p className="mb-4">Additional info about the user goes here.</p>
-        <p className="mb-4">More details about interests, background, etc.</p>
-      </div>
+    <div className="w-screen h-screen">
+      <ProfileCard title="Preference" array={array} />
+      <ProfileCard title="Education" array={array2} />
+      <ProfileCard title="Industry" array={array3} />
     </div>
   );
 };

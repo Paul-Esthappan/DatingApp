@@ -3,6 +3,12 @@ const passport = require('passport');
 const router = express.Router();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+
+// Login with google
+router.get('/login/federated/google', passport.authenticate('google', {
+  scope: ['profile', 'email']
+}));
+
 // Redirect the user to the Google authentication page
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
