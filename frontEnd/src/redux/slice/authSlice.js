@@ -1,3 +1,4 @@
+// redux/authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const authSlice = createSlice({
@@ -8,27 +9,12 @@ const authSlice = createSlice({
   },
   reducers: {
     setUserAndToken: (state, action) => {
-      const { user, token } = action.payload;
-
-      if (user || token) {
-        return {
-          ...state,
-          user,
-          token,
-        };
-      }
-      return state;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
     },
     clearUserAndToken: (state) => {
-      try {
-        return {
-          ...state,
-          user: null,
-          token: null,
-        };
-      } catch (error) {
-        return state;
-      }
+      state.user = null;
+      state.token = null;
     },
   },
 });

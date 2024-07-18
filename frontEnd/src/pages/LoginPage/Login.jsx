@@ -1,75 +1,75 @@
 import React, { useState, useEffect } from "react";
 import { useCountries } from "use-react-countries";
 import { Button } from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
 import InputField from "../../components/input/InputField";
 import InputSelectBox from "../../components/input/InputSelectBox";
-import InputMobileNumber from "../../components/input/InputMobileNumber";
 import FileUpload from "../../components/input/FileUpload";
-import SplashScreen from "../SplashScreen.jsx/SplashScreen";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import SplashScreen from "../SplashScreen/SplashScreen";
 import { publicRequest } from "../../utils/axios/axios";
+import { useDispatch } from "react-redux";
+import { setUserAndToken } from "../../redux/slice/authSlice";
+
+const countryOptions = [
+  { value: "", label: "Select Country" },
+  { value: "india", label: "India" },
+  { value: "china", label: "China" },
+];
+
+const designationOptions = [
+  { value: "", label: "Select Designation" },
+  { value: "admin", label: "Admin" },
+  { value: "other", label: "Other" },
+];
+
+const qualificationOptions = [
+  { value: "BCA", label: "BCA" },
+  { value: "MCA", label: "MCA" },
+  { value: "MBA", label: "MBA" },
+];
+
+const habitsOptions = [
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+];
 
 const Login = ({ isSignInPage }) => {
   const navigate = useNavigate();
   const { countries } = useCountries();
   const [country, setCountry] = useState(0);
   const { name, flags, countryCallingCode } = countries[country];
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-    userName: "",
+    displayName: "",
     country: "",
     phoneNumber: "",
     dob: "",
     gender: "",
     designation: "",
-    createdDate: "",
     qualification: [],
     interests: "",
     drinkingHabits: "",
     smokingHabits: "",
+    location: "", 
   });
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [selectedReels, setSelectedReels] = useState([]);
-  const [showSplash, setShowSplash] = useState(true); // Initial state for splash screen
+  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
+  const [reels, setReels] = useState([]);
+  const [showSplash, setShowSplash] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Hide splash screen after 2 seconds
     const timer = setTimeout(() => setShowSplash(false), 2000);
-    return () => clearTimeout(timer); // Cleanup timer
+    return () => clearTimeout(timer);
   }, []);
-
-  const countryOptions = [
-    { value: "", label: "Select Country" },
-    { value: "india", label: "India" },
-    { value: "china", label: "China" },
-  ];
-
-  const designationOptions = [
-    { value: "", label: "Select Designation" },
-    { value: "admin", label: "Admin" },
-    { value: "other", label: "Other" },
-  ];
-
-  const qualificationOptions = [
-    { value: "BCA", label: "BCA" },
-    { value: "MCA", label: "MCA" },
-    { value: "MBA", label: "MBA" },
-  ];
-
-  const habitsOptions = [
-    { value: "Yes", label: "Yes" },
-    { value: "No", label: "No" },
-  ];
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (type === "checkbox") {
       setFormData((prevFormData) => {
         const newValues = checked
@@ -85,111 +85,89 @@ const Login = ({ isSignInPage }) => {
     }
   };
 
-  const handleFileChange = (files) => {
-    setSelectedFiles(files);
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
   };
 
-  const handleReelChange = (files) => {
-    setSelectedReels(files);
+  const handleFileChange = (e) => {
+    setImages(Array.from(e.target.files));
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage("");
 
-    // Validate password and confirm password
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessage("Passwords do not match");
-      setLoading(false);
-      return;
+  const handleReelChange = (e) => {
+    setReels(Array.from(e.target.files));
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setErrorMessage("");
+
+  if (!isSignInPage && formData.password !== formData.confirmPassword) {
+    setErrorMessage("Passwords do not match");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    let url;
+    let data;
+    if (isSignInPage) {
+      data = {
+        email: formData.email,
+        password: formData.password,
+      };
+    } else {
+      data = new FormData();
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      data.append("displayName", formData.displayName);
+      data.append("shortBio", formData.shortBio);
+      data.append("country", formData.country);
+      data.append("phoneNumber", formData.phoneNumber);
+      data.append("dob", formData.dob);
+      data.append("gender", formData.gender);
+      data.append("designation", formData.designation);
+      data.append("qualification", JSON.stringify(formData.qualification));
+      data.append("interests", formData.interests);
+      data.append("drinkingHabits", formData.drinkingHabits);
+      data.append("smokingHabits", formData.smokingHabits);
+      data.append("image", image);
+      images.forEach((file) => data.append("images", file));
+      reels.forEach((file) => data.append("reels", file));
+      data.append("location", formData.location); // Include location in form data
     }
 
-    try {
-      // Prepare form data for signup or login
-      let url;
-      let data;
+    url = isSignInPage ? "/api/auth/login" : "/api/auth/signup";
 
-      if (isSignInPage) {
-        // Login case
-        url = "/auth/login";
-        data = {
-          email: formData.email,
-          phoneNumber: formData.phoneNumber,
-          password: formData.password,
-        };
-        navigate('/home')
-      } else {
-        // Signup case
-        url = "/auth/signup";
-        data = new FormData();
+    const config = isSignInPage
+      ? { headers: { "Content-Type": "application/json" } }
+      : {};
 
-        for (const key in formData) {
-          if (Array.isArray(formData[key])) {
-            formData[key].forEach((item) => data.append(key, item));
-          } else {
-            data.append(key, formData[key]);
-          }
-        }
+    const response = await publicRequest.post(url, data, config);
 
-        selectedFiles.forEach((file) => {
-          data.append("files", file);
-        });
-
-        selectedReels.forEach((file) => {
-          data.append("reels", file);
-        });
-        navigate("/account/service");
-      }
-
-      // Send data to the backend
-      const response = await axios.post(`${publicRequest}${url}`, data, {
-        headers: {
-          "Content-Type": isSignInPage
-            ? "application/json"
-            : "multipart/form-data",
-        },
-      });
+    if (response.status === 200 || response.status === 201) {
       const { user, token } = response.data;
-
-      // Assuming you have a function to set user and token in your Redux store
-      // dispatch(setUserAndToken({ user, token }));
-
-      // Redirect to home page
-      navigate("/service");
-
-      // Clear form
-      setFormData({
-        email: "",
-        password: "",
-        confirmPassword: "",
-        userName: "",
-        country: "",
-        phoneNumber: "",
-        dob: "",
-        gender: "",
-        designation: "",
-        createdDate: "",
-        qualification: [],
-        interests: "",
-        drinkingHabits: "",
-        smokingHabits: "",
-      });
-      setSelectedFiles([]);
-      setSelectedReels([]);
-    } catch (error) {
-      console.error(`${isSignInPage ? "Login" : "Signup"} failed:`, error);
-      setErrorMessage(
-        `${isSignInPage ? "Login" : "Registration"} failed. Please try again.`
-      );
-    } finally {
-      setLoading(false);
+      dispatch(setUserAndToken({ user, token }));
+      console.log("User details:", user);
+      console.log("Token:", token);
+      navigate("/account/employment");
+    } else {
+      throw new Error(response.data.message || "An error occurred.");
     }
-  };
+  } catch (error) {
+    console.error(`${isSignInPage ? "Login" : "Signup"} failed:`, error);
+    setErrorMessage(
+      `${isSignInPage ? "Login" : "Registration"} failed. Please try again.`
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   const calculateAge = (dob) => {
     const birthDate = new Date(dob);
     const ageDifMs = Date.now() - birthDate.getTime();
-    const ageDate = new Date(ageDifMs); // milliseconds from epoch
+    const ageDate = new Date(ageDifMs);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
 
@@ -197,18 +175,14 @@ const Login = ({ isSignInPage }) => {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-  const handleGoogleSignin = async () => {
-    try {
-      const responce = await axios.get(
-        "http://localhost:3000/login/federated/google"
-      );
-      console.log("g responce", responce);
-    } catch (error) {}
+  const handleGoogleSignin = () => {
+    console.log("Google Sign-In triggered");
+    window.location.href = "http://localhost:3000/auth/login/federated/google";
   };
 
   return (
-    <div className="flex justify-center items-center bg-[#d2cfdf] h-full overflow-scroll">
-      <div className="max-w-7xl bg-white px-6 py-2 rounded-lg shadow-lg hover:cursor-pointer">
+    <div className="flex justify-center bg-[#d2cfdf] h-screen overflow-scroll w-screen">
+      <div className="max-w-7xl mt-10 h-full bg-white px-6 py-2 rounded-lg shadow-lg hover:cursor-pointer overflow-scroll ">
         <button
           className="flex w-full justify-end"
           onClick={() => navigate("/")}
@@ -223,7 +197,7 @@ const Login = ({ isSignInPage }) => {
             ? "Please login to continue."
             : "Please register to continue"}
         </h3>
-        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col ">
           <div className="grid md:grid-cols-2 gap-4">
             <InputField
               type="email"
@@ -256,11 +230,20 @@ const Login = ({ isSignInPage }) => {
                 />
                 <InputField
                   type="text"
-                  name="userName"
-                  id="userName"
+                  name="displayName"
+                  id="displayName"
                   label="UserName"
                   placeholder="ex: John Koya"
-                  value={formData.userName}
+                  value={formData.displayName}
+                  onChange={handleInputChange}
+                />
+                <InputField
+                  type="textarea"
+                  name="shortBio"
+                  id="shortBio"
+                  label="Short bio"
+                  placeholder="ex: John Koya"
+                  value={formData.shortBio}
                   onChange={handleInputChange}
                 />
                 <InputField
@@ -277,105 +260,145 @@ const Login = ({ isSignInPage }) => {
                   name="interests"
                   id="interests"
                   label="Interests"
-                  placeholder="Enter your interests"
+                  placeholder="Your interests"
                   value={formData.interests}
                   onChange={handleInputChange}
                 />
                 <InputSelectBox
-                  label="Drinking Habits"
-                  name="drinkingHabits"
-                  value={formData.drinkingHabits}
-                  onChange={handleInputChange}
-                  options={habitsOptions}
-                />
-                <InputSelectBox
-                  label="Smoking Habits"
-                  name="smokingHabits"
-                  value={formData.smokingHabits}
-                  onChange={handleInputChange}
-                  options={habitsOptions}
-                />
-                <InputSelectBox
-                  label="Country"
                   name="country"
+                  id="country"
+                  label="Country"
+                  options={countryOptions}
                   value={formData.country}
                   onChange={handleInputChange}
-                  options={countryOptions}
-                  className="mb-4"
                 />
-                <InputMobileNumber
-                  type="tel"
-                  label="Phone Number"
+                <InputField
+                  type="text"
                   name="phoneNumber"
-                  placeholder="Phone Number"
+                  id="phoneNumber"
+                  label="Phone Number"
+                  placeholder="Enter your phone number"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                 />
-                <FileUpload
-                  label="Upload Profile Picture"
-                  onChange={handleFileChange}
-                  multiple={false}
-                  accept=".jpg,.png"
+                <InputSelectBox
+                  name="gender"
+                  id="gender"
+                  label="Gender"
+                  options={[
+                    { value: "", label: "Select Gender" },
+                    { value: "male", label: "Male" },
+                    { value: "female", label: "Female" },
+                  ]}
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                />
+                <InputSelectBox
+                  name="designation"
+                  id="designation"
+                  label="Designation"
+                  options={designationOptions}
+                  value={formData.designation}
+                  onChange={handleInputChange}
+                />
+                <InputSelectBox
+                  name="qualification"
+                  id="qualification"
+                  label="Qualification"
+                  options={qualificationOptions}
+                  multiple
+                  value={formData.qualification}
+                  onChange={handleInputChange}
+                />
+                <InputSelectBox
+                  name="drinkingHabits"
+                  id="drinkingHabits"
+                  label="Drinking Habits"
+                  options={habitsOptions}
+                  value={formData.drinkingHabits}
+                  onChange={handleInputChange}
+                />
+                <InputSelectBox
+                  name="smokingHabits"
+                  id="smokingHabits"
+                  label="Smoking Habits"
+                  options={habitsOptions}
+                  value={formData.smokingHabits}
+                  onChange={handleInputChange}
+                />
+                <InputField
+                  type="text"
+                  name="location"
+                  id="location"
+                  label="Location"
+                  placeholder="Your location"
+                  value={formData.location}
+                  onChange={handleInputChange}
                 />
                 <FileUpload
-                  label="Upload Images"
-                  onChange={handleFileChange}
-                  multiple={true}
-                  accept=".jpg,.png"
+                  name="image"
+                  id="image"
+                  label="Profile Picture"
+                  onChange={handleImageChange}
                 />
                 <FileUpload
-                  label="Upload Short Reels"
+                  name="images"
+                  id="images"
+                  label="Images"
+                  multiple
+                  onChange={handleFileChange}
+                />
+                <FileUpload
+                  name="reels"
+                  id="reels"
+                  label="Reels"
+                  multiple
                   onChange={handleReelChange}
-                  multiple={true}
-                  accept=".mp4,.mov"
                 />
-                {selectedFiles.length > 0 && (
-                  <div className="mt-4">
-                    <h2 className="text-xl">Selected Files:</h2>
-                    <ul>
-                      {selectedFiles.map((file, index) => (
-                        <li key={index}>{file.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {selectedReels.length > 0 && (
-                  <div className="mt-4">
-                    <h2 className="text-xl">Selected Reels:</h2>
-                    <ul>
-                      {selectedReels.map((file, index) => (
-                        <li key={index}>{file.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </>
             )}
           </div>
-
-          <Button type="submit" disabled={loading} variant="filled" size="lg">
-            {isSignInPage ? "Login" : "Register"}
-          </Button>
           {errorMessage && (
-            <p className="text-red-500 text-sm">{errorMessage}</p>
+            <p className="text-red-500 text-center">{errorMessage}</p>
           )}
-        </form>
-        {isSignInPage ?
-          <Button className="w-full my-2" onClick={handleGoogleSignin}>
-            Login with Google
-          </Button> : ''}
-        <p className="text-center mt-4 text-sm text-gray-700">
-          {isSignInPage ? "New user?" : "Already have an account?"}
-          <a
-            className="px-2 hover:text-blue-800 hover:text-lg"
-            variant="text"
-            onClick={() =>
-              navigate(isSignInPage ? "/account/signup" : "/account/login")
-            }
+          <Button
+            type="submit"
+            color="blue"
+            disabled={loading}
+            className="w-full mt-4"
           >
-            {isSignInPage ? "Sign up" : "Log in"}
-          </a>
-        </p>
+            {loading ? "Processing..." : isSignInPage ? "Login" : "Sign Up"}
+          </Button>
+        </form>
+        <div className="flex flex-col items-center mt-4">
+          <p className="text-gray-600 text-sm mb-2">
+            {isSignInPage
+              ? "Don't have an account?"
+              : "Already have an account?"}{" "}
+            <span
+              className="text-blue-500 cursor-pointer"
+              onClick={() =>
+                navigate(isSignInPage ? "/account/signup" : "/account/login")
+              }
+            >
+              {isSignInPage ? "Sign Up" : "Login"}
+            </span>
+          </p>
+          <Button
+            onClick={handleGoogleSignin}
+            color="red"
+            className="flex items-center"
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google logo"
+              className="mr-2"
+              width="20"
+              height="20"
+            />
+            Sign in with Google
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -183,6 +183,9 @@ node_modules/
 build/
 dist/
 
+uploads/
+
+
 # misc
 .DS_Store
 .env.local

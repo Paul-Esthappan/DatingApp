@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { setUserAndToken } from '../../redux/authSlice';
 import InputField from '../../components/input/InputField';
 import InputSelectBox from '../../components/input/InputSelectBox';
 import FileUpload from '../../components/input/FileUpload';
 import { Button } from '@material-tailwind/react';
 import InputRadioButton from '../../components/input/InputRadioButton';
+import { setUserAndToken } from '../../redux/slice/authSlice';
 
 const DatingRegisterPage = () => {
     const [country, setCountry] = useState(0);
@@ -103,6 +103,7 @@ const DatingRegisterPage = () => {
         setLoading(false);
       }
     };
+    
   return (
     <div className="flex justify-center items-center h-screen bg-[#d2cfdf]">
       <div className="max-w-7xl bg-white px-6 py-2 rounded-lg shadow-lg">

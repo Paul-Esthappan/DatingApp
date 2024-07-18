@@ -4,9 +4,8 @@ const path = require('path');
 // Define storage for the images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // You can differentiate storage directories based on file field name
-    if (file.fieldname === 'profilePicture') {
-      cb(null, 'uploads/profile_pictures');
+    if (file.fieldname === 'image') {
+      cb(null, 'uploads/image');
     } else if (file.fieldname === 'images') {
       cb(null, 'uploads/images');
     } else if (file.fieldname === 'reels') {
@@ -16,8 +15,9 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    // Set the file name
-    cb(null, `${Date.now()}-${file.originalname}`);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const extension = path.extname(file.originalname);
+    cb(null, `${uniqueSuffix}${extension}`);
   },
 });
 
@@ -28,9 +28,9 @@ const fileFilter = (req, file, cb) => {
   const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
 
   if (mimeType && extName) {
-    return cb(null, true);
+    cb(null, true);
   } else {
-    cb('Error: File type not supported');
+    cb(new Error('File type not supported'));
   }
 };
 
@@ -40,5 +40,6 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
   fileFilter: fileFilter,
 });
+
 
 module.exports = upload;

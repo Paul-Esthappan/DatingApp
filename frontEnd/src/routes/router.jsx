@@ -8,9 +8,18 @@ import DatingRegisterPage from "../pages/LoginPage/DatingRegisterPage";
 import Relationship from "../pages/LoginPage/Relationship";
 import Layout from "../styles/Layout/Layout";
 import Auth from "../pages/AuthPage/Auth";
-import Services from "../pages/LoginPage/Services";
 import Profile from "../pages/Profiles/Profile";
 import SexualOrientation from "../pages/LoginPage/SexualOrientation";
+import Employment from "../pages/LoginPage/Employment";
+import BlockedUsersPage from "../pages/BlockedUsersPage/BlockedUsersPage";
+import DonNotShowPage from "../pages/DonNotShowPage/DonNotShowPage";
+import FriendsListPage from "../pages/FriendsListPage/FriendsListPage";
+import UserProfile from "../pages/UserProfile/UserProfile";
+import RequestsPage from "../pages/Request/RequestsPage";
+import ShortListPage from "../pages/ShortList/ShortListPage";
+import Blocked from "../pages/Blocked/Blocked";
+import Message from "../pages/Message/Message";
+
 
 const mainRoutes = [
   {
@@ -21,7 +30,7 @@ const mainRoutes = [
         path: "/",
         element: (
           <PrivateRoute>
-            <Services />
+            <Home />
           </PrivateRoute>
         ),
       },
@@ -34,7 +43,65 @@ const mainRoutes = [
         ),
       },
       {
-        path: "/dating/profile",
+        path: "/dating/user_profile",
+        element: (
+          <PrivateRoute>
+            <UserProfile />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dating/requests_page",
+        element: (
+          <PrivateRoute>
+            <RequestsPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dating/shortListPage",
+        element: (
+          <PrivateRoute>
+            <ShortListPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dating/blocked",
+        element: (
+          <PrivateRoute>
+            <Blocked />
+          </PrivateRoute>
+        ),
+      },
+
+      {
+        path: "/dating/dontShow",
+        element: (
+          <PrivateRoute>
+            <DonNotShowPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dating/friends",
+        element: (
+          <PrivateRoute>
+            <FriendsListPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dating/message/:id",
+        element: (
+          <PrivateRoute>
+            <Message />
+          </PrivateRoute>
+        ),
+      },
+
+      {
+        path: "/dating/profile/:id",
         element: (
           <PrivateRoute>
             <Profile />
@@ -49,7 +116,7 @@ const mainRoutes = [
 const authRoutes = [
   {
     path: "/account/login",
-    element: <Login />,
+    element: <Login isSignInPage />,
     errorElement: <ErrorPage />,
   },
   {
@@ -58,25 +125,28 @@ const authRoutes = [
     errorElement: <ErrorPage />,
   },
   {
-    path: "/account/register",
-    element: <DatingRegisterPage />,
+    path: "/account/login",
+    element: <Login isSignInPage />,
     errorElement: <ErrorPage />,
   },
   {
-    path: "/account/service",
-    element: <Services />,
+    path: "/account/employment",
+    element: <Employment />,
     errorElement: <ErrorPage />,
   },
   {
-    path: "/dating/relationship",
+    path: "/account/relationship",
     element: <Relationship />,
     errorElement: <ErrorPage />,
   },
-  {
-    path: "/dating/sexualOrientation",
-    element: <SexualOrientation />,
-    errorElement: <ErrorPage />,
-  },
+
+  // {
+  //   path: "/account/register",
+  //   element: <DatingRegisterPage />,
+  //   errorElement: <ErrorPage />,
+  // },
+
+
 ];
 
 const router = createBrowserRouter([...mainRoutes, ...authRoutes]);

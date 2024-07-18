@@ -1,28 +1,34 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt')
+const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
-  googleId: { type: String, required: true, unique: true},
-  displayName: { type: String},
-  email: { type: String, required: true, unique: true },
-  password: { type: String},
-  phoneNumber: { type: String, unique: true },
-  dob: { type: Date},
+  googleId: { type: String},
+  email: { type: String, required: true},
+  password: { type: String },
+  displayName: { type: String },
+  userName: { type: String },
+  shortBio:{type:String},
+  dob: { type: Date },
   gender: { type: String },
-  country: { type: String },
+  location: { type: String },
+  phoneNumber: { type: String,  unique: true  },
+  qualification: { type: String },
+  interests: { type: String },
+  drinkingHabits: { type: String },
+  smokingHabits: { type: String },
+  image: { type: String },
+  images: { type: [String] },
+  reels: { type: [String] },
   designation: { type: String },
-  createDate: { type: Date, default: Date.now },
-  qualification: { type: [String]},
+  sentMessages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
+  receivedMessages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
   accessToken: { type: String },
   refreshToken: { type: String },
-  createDate: { type: Date, default: Date.now },// assuming qualifications are strings in an array
+  
+  createDate: { type: Date, default: Date.now },
   lastLogin: { type: String },
-  subscriptionStatus: { type: String },
-  interests: { type: String, required: true },
-  drinkingHabits: { type: String, required: true },
-  smokingHabits: { type: String, required: true },
-  profilePicture: { type: String },
-  images: [{ type: String }],
-  reels: [{ type: String }]
+  subscriptionStatus: { type: String }
   
 });
 

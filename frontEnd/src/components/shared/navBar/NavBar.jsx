@@ -16,8 +16,8 @@ import {
   PlayCircleIcon,
 } from "@heroicons/react/20/solid";
 import { useNavigate } from 'react-router-dom';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { clearUserAndToken } from '../../redux/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearUserAndToken } from '../../../redux/slice/authSlice';
 import { Button } from '@material-tailwind/react';
 
 const aLink = [
@@ -26,14 +26,25 @@ const aLink = [
     href: "/",
   },
   {
-    name: "Profile",
-    href: "/profile",
+    name: "Request",
+    href: "/dating/requests_page",
   },
   {
-    name: "Dashboard",
-    href: "/dashboard",
+    name: "ShortList",
+    href: "/dating/shortListPage",
   },
-
+  {
+    name: "Message",
+    href: "/dating/message",
+  },
+  {
+    name: "Friends",
+    href: "/dating/friends",
+  },
+  {
+    name: "Block",
+    href: "/dating/blocked",
+  },
 ];
 
 const products = [
@@ -82,24 +93,27 @@ function classNames(...classes) {
 const NavBar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    // dispatch(clearUserAndToken());
+    dispatch(clearUserAndToken());
+    window.location.href = "http://localhost:3000/auth/logout";
     navigate("/");
   };
 
   const handleLogin=()=>{
-    navigate("/account/signin");
+    navigate("/account/login");
   }
 
-  // const currentUser = useSelector((state) => state.auth.user);
-  const currentUser = true
+  const currentUser = useSelector((state) => state.auth.user);
+  console.log("c-user",currentUser);
+  // const currentUser = true
   const userProfilImage = currentUser?.image;
+
 
   
   return (
-    <header className="bg-white fixed top-0 left-0 w-full shadow-lg z-50">
+    <header className="bg-white  top-0 left-0 w-full shadow-lg z-50">
       <nav
         className="mx-auto flex items-center justify-between px-6 lg:px-8 shadow-sm"
         aria-label="Global"
@@ -199,6 +213,19 @@ const NavBar = () => {
           ))}
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          {currentUser ? (
+            <div className="flex justify-center items-center px-2">
+              <p
+                className="hover:cursor-pointer hover:text-indigo-800"
+                onClick={() => navigate("/dating/user_profile")}
+              >
+                {currentUser.displayName}
+              </p>
+              <img className="w-4 h-4" src={currentUser.image} alt="" />
+            </div>
+          ) : (
+            ""
+          )}
           <Button
             variant="text"
             size="sm"
@@ -219,7 +246,7 @@ const NavBar = () => {
         <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
             <a href="/" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
+              <span className="sr-only">Dating</span>
               <img
                 className="h-8 w-auto"
                 src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
@@ -280,7 +307,12 @@ const NavBar = () => {
               <div className="py-6">
                 {currentUser ? (
                   <div className="flex justify-center items-center px-2">
-                    <p>{currentUser.name}</p>
+                    <p
+                      className="hover:cursor-pointer hover:text-indigo-800"
+                      onClick={() => navigate("/dating/user_profile")}
+                    >
+                      {currentUser.displayName}
+                    </p>
                     <img className="w-4 h-4" src={currentUser.image} alt="" />
                   </div>
                 ) : (

@@ -23,7 +23,7 @@ const SexualOrientation = () => {
     <div className="flex flex-col justify-center items-center h-screen">
       <div>
         <h1 className="font-bold text-6xl text-red-400 my-6">
-          What would you like to do?
+          Your Sexual Orintation
         </h1>
       </div>
       <div className="flex justify-center items-center">

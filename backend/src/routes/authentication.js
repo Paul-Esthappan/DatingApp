@@ -10,16 +10,16 @@ router.get('/login/federated/google', passport.authenticate('google', {
 }));
 
 // Redirect the user to the Google authentication page
-router.get('/auth/google',
+router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
 // Google will redirect the user to this URL after authentication
-router.get('/auth/google/callback',
+router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
     console.log('User authenticated:', req.user);
-   res.redirect(`${FRONTEND_URL}/profile`); // Redirect to the frontend server
+   res.redirect(`${FRONTEND_URL}`); // Redirect to the frontend server
   }
 );
 
@@ -27,7 +27,7 @@ router.get('/auth/google/callback',
 router.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
-    res.redirect('http://localhost:5073/'); // Redirect to the frontend server's home page
+    res.redirect('http://localhost:5173/'); // Redirect to the frontend server's home page
   });
 });
 
